@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD Operations</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    h2 {
+      color: #555;
+      margin-top: 0;
+    }
+    form {
+      margin-bottom: 20px;
+     
+    }
+    input[type="text"] {
+      width: calc(100% - 10px);
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    button[type="submit"],
+    button.delete-btn {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button[type="submit"]:hover,
+    button.delete-btn:hover {
+      background-color: #0056b3;
+    }
+    .item {
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+    }
+    .item .actions {
+      margin-top: 10px;
+    }
+    .item .actions a,
+    .item .actions button {
+      margin-right: 10px;
+    }
+
+    
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>CRUD Operations</h1>
+
+    <h2>Add New Item</h2>
+    <form action="/items" method="POST">
+      <input type="text" name="name" placeholder="Enter Name" required>
+      <input type="text" name="description" placeholder="Enter Description" required>
+      <button type="submit">Add Item</button>
+    </form>
+
+    <h2>Items List</h2>
+    <div id="items-list">
+      <% items.forEach(item => { %>
+      <div class="item">
+        <p><strong>Name:</strong> <%= item.name %></p>
+        <p><strong>Description:</strong> <%= item.description %></p>
+        <div class="actions">
+          <a href="#" class="edit-link" data-id="<%= item.id %>">Edit</a>
+          <button class="delete-btn" data-id="<%= item.id %>">Delete</button>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <script>
+   
+    document.querySelectorAll('.delete-btn').forEach(button => {
+      button.addEventListener('click', async () => {
+        const itemId = button.getAttribute('data-id');
+        try {
+          await fetch(`/items/${itemId}`, {
+            method: 'DELETE'
+          });
+          window.location.reload(); // Refresh the page after deletion
+        } catch (error) {
+          console.error('Error deleting item:', error);
+          alert('Failed to delete item. Please try again.');
+        }
+      });
+    });
+    document.querySelectorAll('.edit-link').forEach(link => {
+      link.addEventListener('click', async (event) => {
+        event.preventDefault(); // Prevent default link behavior
+        const itemId = link.getAttribute('data-id');
+        try {
+          const response = await fetch(`/items/${itemId}/edit`);
+          if (response.ok) {
+            // Redirect to edit page if response is successful
+            window.location.href = `/items/${itemId}/edit`;
+          } else {
+            throw new Error('Failed to fetch edit page');
+          }
+        } catch (error) {
+          console.error('Error fetching edit page:', error);
+          alert('Failed to fetch edit page. Please try again.');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
